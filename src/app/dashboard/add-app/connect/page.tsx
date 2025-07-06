@@ -35,6 +35,10 @@ function ConnectContent() {
     const router = useRouter();
     const appName = searchParams.get('appName');
 
+    const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI ?? '';
+    const baseUrl = redirectUri ? new URL(redirectUri).origin : '';
+    const webhookUrl = `${baseUrl}/api/webhooks/instagram`;
+
     const isEnvSet = useMemo(() => {
         return process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID && process.env.NEXT_PUBLIC_REDIRECT_URI && process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_INSTAGRAM_VERIFY_TOKEN;
     }, []);
@@ -52,7 +56,6 @@ function ConnectContent() {
 
     const handleConnect = () => {
         const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
-        const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
         const scope = "user_profile,user_media,instagram_basic,instagram_manage_comments,instagram_content_publish,pages_show_list";
         
         const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
@@ -103,6 +106,8 @@ function ConnectContent() {
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
                        <p>First, you must register as a Meta Developer. Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Meta for Developers</a> website, create an account, and set up a new application. This will give you an <strong>App ID</strong> and an <strong>App Secret</strong>. You need to add these to your Vercel environment variables.</p>
+                       <p className="font-semibold">Your App ID:</p>
+                       <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID}</code></pre>
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="item-2">
@@ -114,7 +119,8 @@ function ConnectContent() {
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
                        <p>In your Meta App's dashboard, find the "Instagram Basic Display" product settings. Under "User Token Generator", you must add a "Valid OAuth Redirect URI". This is where Instagram sends users after they authorize your app.</p>
-                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>https://zoro-iota.vercel.app/auth/instagram/callback</code></pre>
+                       <p className="font-semibold">Your Valid OAuth Redirect URI:</p>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{redirectUri}</code></pre>
                        <p>This exact URL must be saved in your app's settings on the Meta Developer site.</p>
                     </AccordionContent>
                 </AccordionItem>
@@ -172,15 +178,14 @@ function ConnectContent() {
                             <AlertTitle>Important: Configure Vercel Environment Variables</AlertTitle>
                             <AlertDescription>
                                 For Meta to validate your Callback URL, your deployed application must have the correct environment variables. Go to your project settings on Vercel, navigate to "Environment Variables," and add all the keys and values from your <code>.env.local</code> file.
+                                <br/><br/>
+                                <span className="font-semibold">To debug, check the "Logs" tab in your Vercel project after attempting to verify the webhook.</span>
                             </AlertDescription>
                         </Alert>
                         <p className="mt-2 font-semibold">The Callback URL to enter is:</p>
-                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>https://zoro-iota.vercel.app/api/webhooks/instagram</code></pre>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{webhookUrl}</code></pre>
                         <p className="font-semibold">The Verify Token to enter is:</p>
-                        <div className="p-4 bg-muted rounded-md text-sm break-all">
-                           <p className="font-semibold">Your Verify Token:</p>
-                           <code>{process.env.NEXT_PUBLIC_INSTAGRAM_VERIFY_TOKEN}</code>
-                        </div>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{process.env.NEXT_PUBLIC_INSTAGRAM_VERIFY_TOKEN}</code></pre>
                         <p>After setting this up, subscribe to the `comments` and `messages` fields for the Instagram object to start receiving notifications.</p>
                     </AccordionContent>
                 </AccordionItem>
