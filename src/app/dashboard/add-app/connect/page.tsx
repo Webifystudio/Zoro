@@ -36,7 +36,7 @@ function ConnectContent() {
     const appName = searchParams.get('appName');
 
     const isEnvSet = useMemo(() => {
-        return process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID && process.env.NEXT_PUBLIC_REDIRECT_URI;
+        return process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID && process.env.NEXT_PUBLIC_REDIRECT_URI && process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_INSTAGRAM_VERIFY_TOKEN;
     }, []);
 
     useEffect(() => {
@@ -71,9 +71,9 @@ function ConnectContent() {
                     {!isEnvSet ? (
                         <Alert variant="destructive">
                             <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Configuration Missing</AlertTitle>
+                            <AlertTitle>Configuration Missing on Vercel</AlertTitle>
                             <AlertDescription>
-                                Your Instagram App ID is not configured. Please create a <code>.env.local</code> file from <code>.env.example</code> and add your credentials.
+                                Your environment variables are not set. Please go to your Vercel project settings, find the "Environment Variables" section, and add all the values from your local <code>.env.local</code> file.
                             </AlertDescription>
                         </Alert>
                     ) : (
@@ -102,7 +102,7 @@ function ConnectContent() {
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                       <p>First, you must register as a Meta Developer. Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Meta for Developers</a> website, create an account, and set up a new application. This will give you an <strong>App ID</strong> and an <strong>App Secret</strong>. You need to store these in a <code>.env.local</code> file as instructed.</p>
+                       <p>First, you must register as a Meta Developer. Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Meta for Developers</a> website, create an account, and set up a new application. This will give you an <strong>App ID</strong> and an <strong>App Secret</strong>. You need to add these to your Vercel environment variables.</p>
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="item-2">
@@ -114,7 +114,7 @@ function ConnectContent() {
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
                        <p>In your Meta App's dashboard, find the "Instagram Basic Display" product settings. Under "User Token Generator", you must add a "Valid OAuth Redirect URI". This is where Instagram sends users after they authorize your app.</p>
-                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:9002/auth/instagram/callback'}</code></pre>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>https://zoro-iota.vercel.app/auth/instagram/callback</code></pre>
                        <p>This exact URL must be saved in your app's settings on the Meta Developer site.</p>
                     </AccordionContent>
                 </AccordionItem>
@@ -167,16 +167,15 @@ function ConnectContent() {
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
                         <p>To receive real-time notifications (e.g., when you get a new comment), you need to set up Webhooks. In your Meta App Dashboard, select "Webhooks" from the sidebar and choose "Application" as the object.</p>
-                        <p>You must provide a public **Callback URL** and your **Verify Token**. Instagram will send a `GET` request to this URL to verify it. I have just created a server endpoint to handle this for you.</p>
-                         <Alert variant="destructive" className="mt-2">
+                        <Alert variant="destructive" className="mt-2">
                             <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Important: Public URL Required</AlertTitle>
+                            <AlertTitle>Important: Configure Vercel Environment Variables</AlertTitle>
                             <AlertDescription>
-                                For Meta to validate your Callback URL, your local server must be publicly accessible. You can use a tool like <a href="https://ngrok.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">ngrok</a> to expose your local port (9002) to the internet. Your public URL would look like `https://your-ngrok-subdomain.ngrok.io/api/webhooks/instagram`.
+                                For Meta to validate your Callback URL, your deployed application must have the correct environment variables. Go to your project settings on Vercel, navigate to "Environment Variables," and add all the keys and values from your <code>.env.local</code> file.
                             </AlertDescription>
                         </Alert>
                         <p className="mt-2 font-semibold">The Callback URL to enter is:</p>
-                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>https://YOUR_PUBLIC_URL/api/webhooks/instagram</code></pre>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>https://zoro-iota.vercel.app/api/webhooks/instagram</code></pre>
                         <p className="font-semibold">The Verify Token to enter is:</p>
                         <div className="p-4 bg-muted rounded-md text-sm break-all">
                            <p className="font-semibold">Your Verify Token:</p>

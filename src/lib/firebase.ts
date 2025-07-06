@@ -3,7 +3,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBNyk5Qh-qpSCHBkKIsoOdzToQ8F9vKQ8A",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "xp-network-96e8f.firebaseapp.com",
   databaseURL: "https://xp-network-96e8f-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "xp-network-96e8f",
