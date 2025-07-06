@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Info, CheckCircle, List, Send, KeyRound, AlertTriangle } from 'lucide-react';
+import { Info, CheckCircle, List, Send, KeyRound, AlertTriangle, Webhook } from 'lucide-react';
 import { Suspense, useEffect, useMemo } from 'react';
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -156,6 +156,24 @@ function ConnectContent() {
                     <AccordionContent className="text-muted-foreground space-y-2">
                         <p>The short-lived token from the previous step expires quickly. Your backend must exchange it for a long-lived token, which is valid for about 60 days. This long-lived token is what you need to store securely in your database.</p>
                         <p>With this token, your server can finally make authenticated requests to the Instagram Graph API to perform actions on behalf of the user. Before your app can be used by the public, it must pass Meta's official <strong>App Review</strong>.</p>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-6">
+                    <AccordionTrigger>
+                        <div className="flex items-center gap-2">
+                            <Webhook className="h-5 w-5 text-primary" />
+                            Step 6: Set Up Webhooks for Real-Time Updates
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground space-y-2">
+                        <p>To receive real-time notifications (e.g., when you get a new comment), you need to set up Webhooks. In your Meta App Dashboard, go to the "Webhooks" section from the sidebar.</p>
+                        <p>You will need to provide a **Callback URL** (an endpoint on your server that can receive POST requests) and a **Verify Token**.</p>
+                        <p>The Verify Token is a secret string that you create. Instagram uses it to make sure that requests to your Callback URL are genuine. We've generated one for you in your <code>.env.local</code> file.</p>
+                        <div className="p-4 bg-muted rounded-md text-sm break-all">
+                           <p className="font-semibold">Your Verify Token:</p>
+                           <code>{process.env.NEXT_PUBLIC_INSTAGRAM_VERIFY_TOKEN}</code>
+                        </div>
+                        <p>You must copy this token and paste it into the "Verify Token" field in your Webhooks setup on the Meta Developer site.</p>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
