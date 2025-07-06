@@ -47,7 +47,7 @@ export function RegisterForm() {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, values.email, values.password);
-      router.push('/dashboard');
+      router.push('/profile-setup');
     } catch (error: any) {
       toast({
         variant: "destructive",

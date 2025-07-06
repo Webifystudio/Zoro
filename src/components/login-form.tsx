@@ -47,7 +47,7 @@ export function LoginForm() {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       toast({
         variant: "destructive",
