@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Info, CheckCircle, List, Send, KeyRound } from 'lucide-react';
-import { Suspense, useEffect } from 'react';
+import { Info, CheckCircle, List, Send, KeyRound, AlertTriangle } from 'lucide-react';
+import { Suspense, useEffect, useMemo } from 'react';
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -35,6 +35,10 @@ function ConnectContent() {
     const router = useRouter();
     const appName = searchParams.get('appName');
 
+    const isEnvSet = useMemo(() => {
+        return process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID && process.env.NEXT_PUBLIC_REDIRECT_URI;
+    }, []);
+
     useEffect(() => {
         if (!appName) {
             router.push('/dashboard/add-app');
@@ -47,7 +51,13 @@ function ConnectContent() {
     }
 
     const handleConnect = () => {
-        alert("This would start the Instagram OAuth flow. See the explanation below for how this works.");
+        const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
+        const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
+        const scope = "user_profile,user_media,instagram_basic,instagram_manage_comments,instagram_content_publish,pages_show_list";
+        
+        const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+
+        window.location.href = authUrl;
     };
 
     return (
@@ -58,10 +68,20 @@ function ConnectContent() {
                     <CardDescription>Link an Instagram account to your app: <span className="font-semibold text-foreground">{appName}</span></CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Button onClick={handleConnect} className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white hover:opacity-90 transition-opacity">
-                        <InstagramIcon className="mr-2 h-5 w-5" />
-                        Connect Instagram Account
-                    </Button>
+                    {!isEnvSet ? (
+                        <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Configuration Missing</AlertTitle>
+                            <AlertDescription>
+                                Your Instagram App ID is not configured. Please create a <code>.env.local</code> file from <code>.env.example</code> and add your credentials.
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                        <Button onClick={handleConnect} className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white hover:opacity-90 transition-opacity">
+                            <InstagramIcon className="mr-2 h-5 w-5" />
+                            Connect Instagram Account
+                        </Button>
+                    )}
                 </CardContent>
             </Card>
 
@@ -73,7 +93,7 @@ function ConnectContent() {
                 </AlertDescription>
             </Alert>
             
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                 <AccordionItem value="item-1">
                     <AccordionTrigger>
                         <div className="flex items-center gap-2">
@@ -82,47 +102,60 @@ function ConnectContent() {
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                       <p>First, you must register as a Meta Developer. Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Meta for Developers</a> website, create an account, and set up a new application. This will give you an <strong>App ID</strong> and an <strong>App Secret</strong>, which are essential credentials for your application.</p>
+                       <p>First, you must register as a Meta Developer. Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Meta for Developers</a> website, create an account, and set up a new application. This will give you an <strong>App ID</strong> and an <strong>App Secret</strong>. You need to store these in a <code>.env.local</code> file as instructed.</p>
                     </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="item-2">
+                 <AccordionItem value="item-2">
+                    <AccordionTrigger>
+                         <div className="flex items-center gap-2">
+                            <Send className="h-5 w-5 text-primary" />
+                            Step 2: Configure Redirect URI
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground space-y-2">
+                       <p>In your Meta App's dashboard, find the "Instagram Basic Display" product settings. Under "User Token Generator", you must add a "Valid OAuth Redirect URI". For local development, this should be:</p>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:9002/auth/instagram/callback'}</code></pre>
+                       <p>This exact URL must be saved in your app's settings on the Meta Developer site.</p>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
                     <AccordionTrigger>
                         <div className="flex items-center gap-2">
                             <List className="h-5 w-5 text-primary" />
-                            Step 2: Configure Permissions (Scopes)
+                            Step 3: Configure Permissions (Scopes)
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
                         <p>In your Meta App Dashboard, add the "Instagram Graph API" product. You must then configure the specific permissions, or "scopes," your app needs. For automation, you might request scopes like `instagram_manage_comments`, `instagram_content_publish`, and `pages_show_list`. Each permission you request must be justified during the App Review process.</p>
                     </AccordionContent>
                 </AccordionItem>
-                 <AccordionItem value="item-3">
+                 <AccordionItem value="item-4">
                     <AccordionTrigger>
                          <div className="flex items-center gap-2">
                             <Send className="h-5 w-5 text-primary" />
-                            Step 3: Implement the OAuth 2.0 Flow
+                            Step 4: The OAuth 2.0 Flow
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                       <p>OAuth 2.0 is the secure protocol for user authorization. Here’s how it works:</p>
+                       <p>OAuth 2.0 is the secure protocol for user authorization. This button initiates that flow:</p>
                         <ol className="list-decimal list-inside space-y-1 text-sm">
-                            <li><strong>Initiate Connection:</strong> When a user clicks "Connect," you redirect them to an Instagram authorization URL, including your App ID and the scopes you need.</li>
-                            <li><strong>User Approval:</strong> The user logs in and grants your app the requested permissions.</li>
-                            <li><strong>Receive Code:</strong> Instagram redirects the user back to your app with a temporary authorization `code`.</li>
-                            <li><strong>Exchange for Token:</strong> Your server-side code securely exchanges this `code` (along with your App ID and App Secret) for a short-lived access token.</li>
+                            <li><strong>Initiate Connection:</strong> When you click "Connect," you are redirected to an Instagram authorization URL, including your App ID and the scopes you need.</li>
+                            <li><strong>User Approval:</strong> You log in and grant the app the requested permissions.</li>
+                            <li><strong>Receive Code:</strong> Instagram redirects you back to the app with a temporary authorization `code`.</li>
+                            <li><strong>Exchange for Token:</strong> Your server-side code securely exchanges this `code` for an access token.</li>
                         </ol>
                     </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="item-4">
+                <AccordionItem value="item-5">
                     <AccordionTrigger>
                         <div className="flex items-center gap-2">
                             <KeyRound className="h-5 w-5 text-primary" />
-                            Step 4: Get a Long-Lived Token & Make API Calls
+                            Step 5: Get a Long-Lived Token & Make API Calls
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
                         <p>The short-lived token from the previous step expires quickly. Your backend must exchange it for a long-lived token, which is valid for about 60 days. This long-lived token is what you need to store securely in your database.</p>
-                        <p>With this token, your server can finally make authenticated requests to the Instagram Graph API to perform actions on behalf of the user, like posting content or replying to comments. Before your app can be used by the public, it must pass Meta's official <strong>App Review</strong>.</p>
+                        <p>With this token, your server can finally make authenticated requests to the Instagram Graph API to perform actions on behalf of the user. Before your app can be used by the public, it must pass Meta's official <strong>App Review</strong>.</p>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
