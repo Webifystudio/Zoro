@@ -56,9 +56,11 @@ function ConnectContent() {
 
     const handleConnect = () => {
         const appId = process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID;
-        const scope = "user_profile,user_media,instagram_basic,instagram_manage_comments,instagram_content_publish,pages_show_list";
-        
-        const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+        // Scopes for Instagram Graph API (Business integration)
+        const scope = "instagram_basic,instagram_manage_comments,instagram_content_publish,pages_show_list,instagram_manage_messages,pages_read_engagement";
+
+        // Use Facebook's OAuth dialog for business integration
+        const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
 
         window.location.href = authUrl;
     };
@@ -118,7 +120,7 @@ function ConnectContent() {
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                       <p>In your Meta App's dashboard, find the "Instagram Basic Display" product settings. Under "User Token Generator", you must add a "Valid OAuth Redirect URI". This is where Instagram sends users after they authorize your app.</p>
+                       <p>In your Meta App's dashboard, go to the "Facebook Login for Business" product settings. Under "Valid OAuth Redirect URIs", you must add the following URL.</p>
                        <p className="font-semibold">Your Valid OAuth Redirect URI:</p>
                         <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{redirectUri}</code></pre>
                        <p>This exact URL must be saved in your app's settings on the Meta Developer site.</p>
@@ -132,7 +134,7 @@ function ConnectContent() {
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                        <p>In your Meta App Dashboard, add the "Instagram Graph API" product. You must then configure the specific permissions, or "scopes," your app needs. For automation, you might request scopes like `instagram_manage_comments`, `instagram_content_publish`, and `pages_show_list`. Each permission you request must be justified during the App Review process.</p>
+                        <p>In your Meta App Dashboard, add and configure the "Facebook Login for Business" and "Instagram Graph API" products. You must request specific permissions (scopes) to automate actions. Our app requests scopes like `instagram_basic`, `instagram_manage_comments`, `instagram_content_publish`, and `pages_show_list`. Each permission requires justification during App Review.</p>
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="item-4">
@@ -145,9 +147,9 @@ function ConnectContent() {
                     <AccordionContent className="text-muted-foreground space-y-2">
                        <p>OAuth 2.0 is the secure protocol for user authorization. This button initiates that flow:</p>
                         <ol className="list-decimal list-inside space-y-1 text-sm">
-                            <li><strong>Initiate Connection:</strong> When you click "Connect," you are redirected to an Instagram authorization URL, including your App ID and the scopes you need.</li>
-                            <li><strong>User Approval:</strong> You log in and grant the app the requested permissions.</li>
-                            <li><strong>Receive Code:</strong> Instagram redirects you back to the app with a temporary authorization `code`.</li>
+                            <li><strong>Initiate Connection:</strong> When you click "Connect," you are redirected to a Facebook authorization URL, including your App ID and the scopes you need.</li>
+                            <li><strong>User Approval:</strong> You log in with Facebook and grant the app the requested permissions for your linked Instagram Business Account.</li>
+                            <li><strong>Receive Code:</strong> Facebook redirects you back to the app with a temporary authorization `code`.</li>
                             <li><strong>Exchange for Token:</strong> Your server-side code securely exchanges this `code` for an access token.</li>
                         </ol>
                     </AccordionContent>
