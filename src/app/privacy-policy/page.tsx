@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
   const handleAgree = () => {
     // Here you would typically mark the user's profile as having accepted the policy.
     console.log('User accepted privacy policy.');
-    router.push('/');
+    router.push('/dashboard');
   };
   
   if (authLoading || !user) {
