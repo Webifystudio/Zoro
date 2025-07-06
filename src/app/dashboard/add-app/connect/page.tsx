@@ -113,7 +113,7 @@ function ConnectContent() {
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                       <p>In your Meta App's dashboard, find the "Instagram Basic Display" product settings. Under "User Token Generator", you must add a "Valid OAuth Redirect URI". For local development, this should be:</p>
+                       <p>In your Meta App's dashboard, find the "Instagram Basic Display" product settings. Under "User Token Generator", you must add a "Valid OAuth Redirect URI". This is where Instagram sends users after they authorize your app.</p>
                         <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>{process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:9002/auth/instagram/callback'}</code></pre>
                        <p>This exact URL must be saved in your app's settings on the Meta Developer site.</p>
                     </AccordionContent>
@@ -166,14 +166,23 @@ function ConnectContent() {
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground space-y-2">
-                        <p>To receive real-time notifications (e.g., when you get a new comment), you need to set up Webhooks. In your Meta App Dashboard, go to the "Webhooks" section from the sidebar.</p>
-                        <p>You will need to provide a **Callback URL** (an endpoint on your server that can receive POST requests) and a **Verify Token**.</p>
-                        <p>The Verify Token is a secret string that you create. Instagram uses it to make sure that requests to your Callback URL are genuine. We've generated one for you in your <code>.env.local</code> file.</p>
+                        <p>To receive real-time notifications (e.g., when you get a new comment), you need to set up Webhooks. In your Meta App Dashboard, select "Webhooks" from the sidebar and choose "Application" as the object.</p>
+                        <p>You must provide a public **Callback URL** and your **Verify Token**. Instagram will send a `GET` request to this URL to verify it. I have just created a server endpoint to handle this for you.</p>
+                         <Alert variant="destructive" className="mt-2">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Important: Public URL Required</AlertTitle>
+                            <AlertDescription>
+                                For Meta to validate your Callback URL, your local server must be publicly accessible. You can use a tool like <a href="https://ngrok.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">ngrok</a> to expose your local port (9002) to the internet. Your public URL would look like `https://your-ngrok-subdomain.ngrok.io/api/webhooks/instagram`.
+                            </AlertDescription>
+                        </Alert>
+                        <p className="mt-2 font-semibold">The Callback URL to enter is:</p>
+                        <pre className="p-2 bg-muted rounded-md text-sm my-2"><code>https://YOUR_PUBLIC_URL/api/webhooks/instagram</code></pre>
+                        <p className="font-semibold">The Verify Token to enter is:</p>
                         <div className="p-4 bg-muted rounded-md text-sm break-all">
                            <p className="font-semibold">Your Verify Token:</p>
                            <code>{process.env.NEXT_PUBLIC_INSTAGRAM_VERIFY_TOKEN}</code>
                         </div>
-                        <p>You must copy this token and paste it into the "Verify Token" field in your Webhooks setup on the Meta Developer site.</p>
+                        <p>After setting this up, subscribe to the `comments` and `messages` fields for the Instagram object to start receiving notifications.</p>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
